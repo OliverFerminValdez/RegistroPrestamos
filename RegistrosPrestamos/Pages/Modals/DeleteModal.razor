@@ -1,0 +1,29 @@
+﻿@page "/delete"            
+
+@inject IModalService modal
+<div class="simple-form">
+    <div class="form-group">
+        <h4>Esta seguro que desea eliminar este elemento?</h4>
+    </div>
+</div>      
+ <div class="form-group text-center" display: inline-block>
+     <a href="#" class="btn btn-lg btn-primary">No</a>
+      <button type="button" class="btn btn-lg btn-success" @oncl>No</button>
+ </div>
+            
+
+@code {
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; }
+    public bool Eliminado { get; set; }
+
+    public static void YesOfCourse(int id)
+    {
+        RegistrosPrestamos.BLL.PersonasBLL.Eliminar(id);
+    }
+    public void No()
+    {
+        Eliminado = false;
+        BlazoredModal.Close(ModalResult.Cancel());
+    }
+}

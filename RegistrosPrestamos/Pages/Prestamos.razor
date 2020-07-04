@@ -2,7 +2,10 @@
 @page "/prestamos/{prestamoId:int}"
 
 @using Models;
+@using Modals;
 @inject IToastService toast
+@inject IJSRuntime js
+
 
 <EditForm Model="prestamos" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
@@ -102,15 +105,16 @@
         }
     }
 
-    public void Guardar()
+    public async Task Guardar()
     {
         bool guardo;
 
-
+        await js.InvokeVoidAsync("Swal.fire","Top-end","success","Guardado Exitosamente",false,1500);
         guardo = RegistrosPrestamos.BLL.PrestamosBLL.Guardar(prestamos);
 
         if (guardo)
         {
+
             Nuevo();
             toast.ShowSuccess("Guardado exitosamente!");
         }
@@ -120,19 +124,26 @@
         }
     }
 
-    public void Eliminar()
+    public async Task Eliminar()
     {
+
         bool elimino;
 
-        elimino = RegistrosPrestamos.BLL.PrestamosBLL.Eliminar(prestamos.PrestamoId);
-
-        if (elimino)
+        
+        if (await js.Confirmar("Confirmar","Esta seguro","question"))
         {
-            Nuevo();
-            toast.ShowSuccess("Eliminado exitosamente!");
+            elimino = RegistrosPrestamos.BLL.PrestamosBLL.Eliminar(prestamos.PrestamoId);
+
+            if (elimino)
+            {
+                Nuevo();
+                toast.ShowSuccess("Eliminado exitosamente!");
+            }
+            else
+                toast.ShowError("No fue posible eliminar");
         }
-        else
-            toast.ShowError("No fue posible eliminar");
+
 
     }
+
 }

@@ -1,10 +1,12 @@
 ﻿@page "/counter"
 
+@inject IModalService modal
 <h1>Counter</h1>
 
 <p>Current count: @currentCount</p>
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-success" @onclick="@(()=> modal.Show<RegistrosPrestamos.Pages.Registros.Marca>())">Agregar Marca</button>
 
 @code {
     private int currentCount = 0;

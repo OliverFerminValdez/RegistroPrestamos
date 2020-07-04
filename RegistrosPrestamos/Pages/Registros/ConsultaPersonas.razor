@@ -1,0 +1,142 @@
+﻿@page "/consultaPersonas"
+
+@using Models 
+@inject IModalService modal
+
+<h3>Consulta de personas</h3>
+
+<div class="card">
+    <div class="card-header">
+        <div class="form-group">
+            <label>Ordenar</label>
+            <select @bind="Criterio" @onclick="Ordenar">
+                <option value="Nombre">Por nombre</option>
+                <option value="Balance">Por Balance</option>
+            </select>
+        </div>
+    </div>
+    <div class="card-body">
+
+        <form>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Telefono</th>
+                        <th scope="col">Cedula</th>
+                        <th scope="col">Direccion</th>
+                        <th scope="col">Fecha de nacimiento</th>
+                        <th scope="col">Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                        @foreach (var item in ItemsList)
+                        {
+                    <tr>
+                        <th scope="row">@item.PersonaId</th>
+                        <td>@item.Nombre</td>
+                        <td>@item.Telefono</td>
+                        <td>@item.Cedula</td>
+                        <td>@item.Direccion</td>
+                        <td>@item.Nacimiento</td>
+                        <td>@item.Balance</td>
+                        <td><a href="@($"Personas/{item.PersonaId}")" class="btn btn-primary">Editar</a></td>
+                        <td><button type="button" class="btn btn-success" @onclick="@(() => modal.Show<Personas>())">Agregar</button></td>
+                    </tr>
+                        }
+                    </tbody>
+            </table>
+        </form>
+    </div>
+
+    <div class="card-footer">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item">
+                <button class="page-link btn btn-danger" 
+                        @onclick="@(e => NavegateTo("Previous"))" tabindex="-1">Previous</button>
+            </li>
+
+            @for(int i = 0; i < TotalPages; i++)
+            {
+                var pageNumber = i;
+                <li class="page-item"><button class="@(CurrentPage == pageNumber? "page-link btn btn-dark": "page-link btn btn-danger")"
+                                              @onclick="@(u => UpdateList(pageNumber))"
+                                              >@(i+1)  
+                                      </button>
+                </li>
+            }
+            
+        <li class="page-item">
+            @* <button class="page-link btn btn-danger" @onclick="" tabindex="-1">Next</button>*@
+        </li>
+        </ul>
+    </nav>
+    </div>
+</div>
+
+
+
+@code {
+
+
+    [Parameter]
+    public List<Persona> Items { get; set; }
+
+    public List<Persona> ItemsList { get; set; }
+
+    public string Criterio { get; set; }
+    public int PageSize { get; set; }
+    public int TotalPages { get; set; }
+    public int CurrentPage { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Items = RegistrosPrestamos.BLL.PersonasBLL.GetPersonas();
+        PageSize = 5;
+
+        ItemsList = Items.Take(PageSize).ToList();
+        TotalPages = (int)Math.Ceiling(Items.Count() / (decimal)PageSize);
+
+        base.OnInitialized();
+    }
+
+    private void UpdateList(int pageNumber)
+    {
+        ItemsList = Items.Skip(pageNumber * PageSize).Take(PageSize).ToList();
+        CurrentPage = pageNumber;
+    }
+
+    private void NavegateTo(string direction)
+    {
+        if (direction == "Previous" && CurrentPage != 0)
+            CurrentPage -= 1;
+        if (direction == "Next" && CurrentPage != TotalPages - 1)
+            CurrentPage += 1;
+
+        UpdateList(CurrentPage);
+    }
+    private void Ordenar()
+    {
+        if(Criterio == "Total")
+        {
+            ItemsList = new List<Persona>();
+            UpdateList(CurrentPage);
+            ItemsList = ItemsList.OrderBy(x => x.Nombre).ToList();
+        }
+        if(Criterio == "Credito")
+        {
+            ItemsList = new List<Persona>();
+            UpdateList(CurrentPage);
+            ItemsList = ItemsList.OrderBy(x => x.Balance).ToList();
+        }
+        if (Criterio == "Debito")
+        {
+            ItemsList = new List<Persona>();
+            UpdateList(CurrentPage);
+            ItemsList = ItemsList.OrderBy(x => x.Balance).ToList();
+        }
+    }
+}

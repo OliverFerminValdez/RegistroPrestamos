@@ -2,12 +2,12 @@
 @page "/Personas/{PersonaId:int}"
 
 
-
 @using Models;
 @inject IToastService toast
+@inject IModalService modal
 
 <EditForm Model="personas" OnValidSubmit="Guardar">
-    <DataAnnotationsValidator />
+    <DataAnnotationsValidator/>
     <div class=" card-header">
         <h3>Registro de personas</h3>
     </div>
@@ -69,7 +69,7 @@
         <div class="form-group text-center" display: inline-block>
             <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo"> <span class="oi oi-plus" aria-hidden="true"></span> Nuevo </button>
             <button type="submit" class="btn btn-lg btn-success"><span class="oi oi-circle-check" aria-hidden="true"></span> Guardar </button>
-            <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar"><span class="oi oi-circle-x"></span> Eliminar </button>
+            <button type="button" class="btn btn-lg btn-danger"@onclick="@(()=>modal.Show<RegistrosPrestamos.Pages.Modals.DeleteModal>())"><span class="oi oi-circle-x"></span> Eliminar </button>
         </div>
     </div>
 
@@ -79,13 +79,29 @@
 
     [Parameter]
     public int PersonaId { get; set; }
-
+    [Parameter]
+    public bool Eliminado { get; set; }
     private Persona personas = new Persona();
 
     protected override void OnInitialized()
     {
         Nuevo();
-        Buscar();
+        BuscarInit();
+    }
+    void BuscarInit()
+    {
+        if(PersonaId > 0)
+        {
+            modal.Show<Registros.Personas>();
+            var encontrado = RegistrosPrestamos.BLL.PersonasBLL.Buscar(PersonaId);
+            if (encontrado != null)
+                this.personas = encontrado;
+
+        }
+        else
+        {
+            return;
+        }
     }
 
     public void Nuevo()
@@ -102,7 +118,7 @@
             if (encontrado != null)
                 this.personas = encontrado;
             else
-            toast.ShowWarning("No encontrado");
+                toast.ShowWarning("No encontrado");
         }
     }
 
@@ -126,17 +142,21 @@
 
     public void Eliminar()
     {
+        var resultado = modal.Show<RegistrosPrestamos.Pages.Modals.DeleteModal>();
         bool elimino;
 
-        elimino = RegistrosPrestamos.BLL.PersonasBLL.Eliminar(personas.PersonaId);
-
-        if (elimino)
+        if (Eliminado)
         {
-            Nuevo();
-            toast.ShowSuccess("Eliminado exitosamente!");
+            elimino = RegistrosPrestamos.BLL.PersonasBLL.Eliminar(personas.PersonaId);
+            if (elimino)
+            {
+                Nuevo();
+                toast.ShowSuccess("Eliminado exitosamente!");
+            }
+            else
+                toast.ShowError("No fue posible eliminar");
         }
-        else
-            toast.ShowError("No fue posible eliminar");
+
 
     }
 }
