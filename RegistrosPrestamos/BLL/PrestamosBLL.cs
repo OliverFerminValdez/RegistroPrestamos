@@ -1,5 +1,6 @@
 ﻿using RegistrosPrestamos.DAL;
 using RegistrosPrestamos.Models;
+using RegistrosPrestamos.Pages.Registros;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,6 +53,14 @@ namespace RegistrosPrestamos.BLL
             Contexto db = new Contexto();
             try
             {
+
+                if (PersonasBLL.Buscar(prestamo.PersonaId) != null)
+                {
+                    var persona = PersonasBLL.Buscar(prestamo.PersonaId);
+                    persona.Balance = prestamo.Monto;
+                    PersonasBLL.Modificar(persona);
+                }
+
                 db.Entry(prestamo).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                 paso = db.SaveChanges() > 0;
             }
