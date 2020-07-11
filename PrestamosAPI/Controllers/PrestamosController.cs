@@ -23,27 +23,48 @@ namespace PrestamosAPI.Controllers
 
         // GET api/<PrestamosController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public ActionResult<Prestamo> Get(int id)
         {
-            return "value";
+            return PrestamosBLL.Buscar(id);
         }
 
         // POST api/<PrestamosController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult<Prestamo> Post(Prestamo prestamo)
         {
+            PrestamosBLL.Guardar(prestamo);
+
+            return CreatedAtAction(nameof(Get), new { id = prestamo.PrestamoId }, prestamo);
         }
 
         // PUT api/<PrestamosController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public ActionResult Put(int id, Prestamo prestamo)
         {
+            if (id != prestamo.PrestamoId)
+                return BadRequest();
+
+            PrestamosBLL.Modificar(prestamo);
+
+            return NoContent();
         }
 
         // DELETE api/<PrestamosController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(int id)
         {
+            if (PrestamosBLL.Buscar(id) != null)
+            {
+                PrestamosBLL.Eliminar(id);
+            }
+            else
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+
         }
+
     }
 }

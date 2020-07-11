@@ -5,12 +5,14 @@
 @using Models;
 @inject IToastService toast
 @inject IModalService modal
+@inject IJSRuntime js2
 
 <EditForm Model="personas" OnValidSubmit="Guardar">
     <DataAnnotationsValidator/>
     <div class=" card-header">
         <h3>Registro de personas</h3>
     </div>
+   
     <div class="card-body">
         <form>
             @*personas*@
@@ -107,7 +109,6 @@
     public void Nuevo()
     {
         personas = new Persona();
-
     }
     public void Buscar()
     {
@@ -122,10 +123,10 @@
         }
     }
 
-    public void Guardar()
+    public async void Guardar()
     {
         bool guardo;
-
+        
 
         guardo = RegistrosPrestamos.BLL.PersonasBLL.Guardar(personas);
 
@@ -133,6 +134,7 @@
         {
             Nuevo();
             toast.ShowSuccess("Guardado exitosamente!");
+            await js2.InvokeVoidAsync("NotificarGuardado");
         }
         else
         {

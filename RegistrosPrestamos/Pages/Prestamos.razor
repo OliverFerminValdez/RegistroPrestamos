@@ -91,6 +91,7 @@
     public void Nuevo()
     {
         prestamos = new Prestamo();
+
     }
     public void Buscar()
     {
@@ -117,6 +118,8 @@
 
             Nuevo();
             toast.ShowSuccess("Guardado exitosamente!");
+            await js.NotifySave();
+            
         }
         else
         {
@@ -129,18 +132,22 @@
 
         bool elimino;
 
-        
-        if (await js.Confirmar("Confirmar","Esta seguro","question"))
+        if(await js.ConfirmDelete())
         {
-            elimino = RegistrosPrestamos.BLL.PrestamosBLL.Eliminar(prestamos.PrestamoId);
 
-            if (elimino)
+            if (await js.Confirmar("Confirmacion", "Esta seguro que desea eliminar este prestamo", "question"))
             {
-                Nuevo();
-                toast.ShowSuccess("Eliminado exitosamente!");
+                elimino = RegistrosPrestamos.BLL.PrestamosBLL.Eliminar(prestamos.PrestamoId);
+
+                if (elimino)
+                {
+                    Nuevo();
+                    toast.ShowSuccess("Eliminado exitosamente!");
+                    await js.NotifyDelete();
+                }
+                else
+                    toast.ShowError("No fue posible eliminar");
             }
-            else
-                toast.ShowError("No fue posible eliminar");
         }
 
 
